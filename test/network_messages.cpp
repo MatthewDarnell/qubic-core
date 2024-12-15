@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 
 #define NETWORK_MESSAGES_WITHOUT_CORE_DEPENDENCIES
+#define restrict
+#include <scale.h>
 #include "../src/network_messages/all.h"
 
 
@@ -65,4 +67,33 @@ TEST(TestCoreCommonDef, IPv4Address) {
     ip2 = ip_ref;
     EXPECT_TRUE(ip_ref == ip2);
     EXPECT_FALSE(ip_ref != ip2);
+}
+
+TEST(TestTransactionSize, TransactionSize) {
+  RequestResponseHeader hdr;
+  memset(&hdr, 0, sizeof(hdr));
+  EXPECT_EQ(hdr.getPayload<char>(), ((char*)&hdr) + sizeof(RequestResponseHeader));
+  Transaction tx;
+  Transaction tx2;
+  tx.amount = 1000;
+  tx.tick = 100000;
+  tx.inputType = 24;
+  tx.inputSize = 10;
+  randombytes((unsigned int*)&tx.sourcePublicKey);
+  randombytes((unsigned int*)&tx.destinationPublicKey);
+  std::cout << "Original Transaction Length: " << tx.totalSize() << std::endl;
+  EXPECT_EQ(tx.totalSize(), 154);
+  tx.print();
+  uint8_t serialized[256] = { 0 };
+  size_t len = 0;
+  tx.Transaction_serialize(serialized, &len, &tx);
+  char *hex = NULL;
+  hex = cscale_byte_array_to_hex(serialized, len);
+  std::cout << "Transaction SCALE (len=" << len << "): " << hex << std::endl;
+
+  tx.Transaction_deserialize(&tx2, serialized, len);
+  std::cout << "Deserialized Length: " << tx2.totalSize() << std::endl;
+
+  tx2.print();
+  free(hex);
 }
