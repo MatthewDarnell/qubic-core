@@ -1,6 +1,12 @@
 #pragma once
 
+#ifdef __aarch64__
+#include <arm_neon.h>
+#include "../randombytes.h"
+#define _rdrand32_step randombytes
+#else
 #include <intrin.h>
+#endif
 
 struct RequestResponseHeader
 {

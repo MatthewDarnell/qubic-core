@@ -25,7 +25,19 @@
 // following line to "#if 1".
 #if defined(NETWORK_MESSAGES_WITHOUT_CORE_DEPENDENCIES)
 
+#ifdef __aarch64__
+#include <arm_neon.h>
+#define __int8 __int8_t
+#define __int16 __int16_t
+#define __int32 __int32_t
+#define __int64 __int64_t
+#define __uint8 __uint8_t
+#define __uint16 __uint16_t
+#define __uint32 __uint32_t
+#define __uint64 __uint64_t
+#else
 #include <intrin.h>
+#endif
 
 typedef union m256i
 {
@@ -33,10 +45,10 @@ typedef union m256i
     __int16             m256i_i16[16];
     __int32             m256i_i32[8];
     __int64             m256i_i64[4];
-    unsigned __int8     m256i_u8[32];
-    unsigned __int16    m256i_u16[16];
-    unsigned __int32    m256i_u32[8];
-    unsigned __int64    m256i_u64[4];
+    __uint8     m256i_u8[32];
+    __uint16    m256i_u16[16];
+    __uint32    m256i_u32[8];
+    __uint64    m256i_u64[4];
 } m256i;
 
 #else
@@ -47,8 +59,8 @@ typedef union m256i
 
 typedef union IPv4Address
 {
-    unsigned __int8     u8[4];
-    unsigned __int32    u32;
+  __uint8     u8[4];
+  __uint32    u32;
 } IPv4Address;
 
 static_assert(sizeof(IPv4Address) == 4, "Unexpected size!");
