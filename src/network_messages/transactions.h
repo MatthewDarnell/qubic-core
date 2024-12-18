@@ -22,8 +22,7 @@ struct Transaction
     unsigned short inputType;
     unsigned short inputSize;
 
-    /* read a void* Structure @structure and write a serialized scale byte array of length @bytes to @serialized */
-    void Transaction_serialize(uint8_t* serialized, size_t *bytes, void *structure) {
+    static void Transaction_serialize(uint8_t* serialized, size_t *bytes, void *structure) {
       auto *value = (struct Transaction*)structure;
 
       //Declare our Scale Values
@@ -85,7 +84,7 @@ struct Transaction
       //Done
     }
 
-    void Transaction_deserialize(void *structure_out, uint8_t *bytes, size_t len) {
+    static void Transaction_deserialize(void *structure_out, uint8_t *bytes, size_t len) {
       auto *value = (struct Transaction*)structure_out; //Cast this void* to our Structure
       //Prepare Variables To Receive Each Scale Value
       scale_vector sourcePubKeyVector = SCALE_VECTOR_INIT;
