@@ -79,21 +79,28 @@ TEST(TestTransactionSize, TransactionSize) {
   tx.tick = 100000;
   tx.inputType = 24;
   tx.inputSize = 10;
+  memset(tx.sourcePublicKey.m256i_i8, 0, 32);
+  memset(tx.destinationPublicKey.m256i_i8, 0, 32);
   randombytes((unsigned int*)&tx.sourcePublicKey);
+  tx.sourcePublicKey.m256i_i8[31] = 1;
   randombytes((unsigned int*)&tx.destinationPublicKey);
-  std::cout << "Original Transaction Length: " << tx.totalSize() << std::endl;
+  tx.destinationPublicKey.m256i_i8[31] = 1;
   EXPECT_EQ(tx.totalSize(), 154);
-  tx.print();
   uint8_t serialized[256] = { 0 };
   size_t len = 0;
   tx.Transaction_serialize(serialized, &len, &tx);
-  char *hex = NULL;
-  hex = cscale_byte_array_to_hex(serialized, len);
-  std::cout << "Transaction SCALE (len=" << len << "): " << hex << std::endl;
-
   tx.Transaction_deserialize(&tx2, serialized, len);
-  std::cout << "Deserialized Length: " << tx2.totalSize() << std::endl;
-
-  tx2.print();
-  free(hex);
+  EXPECT_EQ(tx2.totalSize(), 154);
+  EXPECT_EQ(tx2.amount, 1000);
+  EXPECT_EQ(tx2.tick, 100000);
+  EXPECT_EQ(tx2.inputType, 24);
+  EXPECT_EQ(tx2.inputSize, 10);
+  EXPECT_EQ(
+    memcmp(tx.sourcePublicKey.m256i_i8, tx2.sourcePublicKey.m256i_i8, 32),
+    0
+    );
+  EXPECT_EQ(
+    memcmp(tx.destinationPublicKey.m256i_i8, tx2.destinationPublicKey.m256i_i8, 32),
+    0
+  );
 }
